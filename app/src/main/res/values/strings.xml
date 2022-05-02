@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Currency converter</string>
+    <string name="main_fragment_label">Currency converter</string>
+    <string name="from">FROM:</string>
+    <string name="to">TO:</string>
+    <string name="convert">Convert</string>
+    <string name="amount">AMOUNT:</string>
+    <string name="converted_to">CONVERTED TO:</string>
+</resources>
