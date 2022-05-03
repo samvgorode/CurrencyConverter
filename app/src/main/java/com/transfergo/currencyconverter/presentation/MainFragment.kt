@@ -1,7 +1,6 @@
 package com.transfergo.currencyconverter.presentation
 
 import android.app.Dialog
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -13,9 +12,11 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.transfergo.currencyconverter.R
 import com.transfergo.currencyconverter.databinding.FragmentMainBinding
+import com.transfergo.currencyconverter.domain.Currency
+import com.transfergo.currencyconverter.presentation.adapters.SelectCurrencyAdapter
+import com.transfergo.currencyconverter.presentation.viewModel.MainFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -23,13 +24,15 @@ class MainFragment : Fragment() {
     private val viewModel: MainFragmentViewModel by viewModels()
     private var binding: FragmentMainBinding? = null
 
+    // observables
     val showProgress = ObservableBoolean()
-    val from = ObservableField("EUR")
-    val fromIcon = ObservableInt(R.drawable.ic_currency_eur_small)
-    val to = ObservableField("GBP")
-    val toIcon = ObservableInt(R.drawable.ic_currency_gbp_small)
+    val from = ObservableField(DEFAULT_CURRENCY_FROM)
+    val fromIcon = ObservableInt(DEFAULT_ICON_FROM)
+    val to = ObservableField(DEFAULT_CURRENCY_TO)
+    val toIcon = ObservableInt(DEFAULT_ICON_TO)
     val amount = ObservableField<String>()
     val convertedAmount = ObservableField<String>()
+    val rateFullText = ObservableField<String>()
     val isAmountExpanded = ObservableBoolean(true)
 
     // select currency dialogs
@@ -51,25 +54,37 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fillAdapters()
-        viewModel.uiResponse.observe(this.viewLifecycleOwner) { response ->
+        observeLiveDate()
+    }
+
+    private fun observeLiveDate() {
+        viewModel.uiState.observe(this.viewLifecycleOwner) { response ->
             when (response) {
-                UiResponse.Progress -> showProgress.set(true)
-                is UiResponse.Success -> handleSuccess(response)
-                is UiResponse.Error -> handleError(response)
+                UiState.Progress -> showProgress.set(true)
+                is UiState.Success -> handleSuccess(response)
+                is UiState.Error -> handleError(response)
             }
+        }
+        viewModel.currencies.observe(this.viewLifecycleOwner) { currencies ->
+            fromAdapter.setItems(currencies)
+            toAdapter.setItems(currencies)
         }
     }
 
-    private fun handleSuccess(response: UiResponse.Success) {
+    private fun handleSuccess(response: UiState.Success) = response.lastKnownState?.let { state ->
         showProgress.set(false)
         isAmountExpanded.set(false)
-        val rate = response.rate ?: BigDecimal.ONE
-        val amount = amount.get()?.toBigDecimalOrNull() ?: BigDecimal.ZERO
-        val calculatedAmount = (rate * amount).setScale(2, RoundingMode.CEILING).toString()
-        convertedAmount.set(calculatedAmount)
+        val rate = state.rate ?: BigDecimal.ONE
+        rateFullText.set("1 ${from.get()} = $rate ${to.get()}")
+        from.set(state.from)
+        state.fromIcon?.let(fromIcon::set)
+        to.set(state.to)
+        state.toIcon?.let(toIcon::set)
+        amount.set(state.fromAmount.toString())
+        convertedAmount.set(state.toAmount.toString())
     }
 
-    private fun handleError(response: UiResponse.Error) {
+    private fun handleError(response: UiState.Error) {
         showProgress.set(false)
         toast(response.message)
     }
@@ -82,6 +97,78 @@ class MainFragment : Fragment() {
     fun onToClick() = binding?.to?.let {
         toListDialog = getDialog(toAdapter, it)
         toListDialog?.show()
+    }
+
+    fun convert() {
+        val currencyFrom = from.get().orEmpty()
+        val currencyTo = to.get().orEmpty()
+        val amount = amount.get().orEmpty()
+        if (amount.isBlank()) {
+            toast(getString(R.string.amount_is_required))
+            return
+        }
+        viewModel.convert(currencyFrom, currencyTo, amount)
+    }
+
+    fun switchCurrencies() {
+        switchCurrency()
+        switchIcon()
+        if (isAmountExpanded.get().not()) {
+            switchAmounts()
+            hideRateHint()
+        }
+        fillAdapters()
+    }
+
+    private fun switchCurrency() {
+        val to = to.get()
+        val from = from.get()
+        this.from.set(to)
+        this.to.set(from)
+    }
+
+    private fun switchIcon() {
+        val toIcon = toIcon.get()
+        val fromIcon = fromIcon.get()
+        this.fromIcon.set(toIcon)
+        this.toIcon.set(fromIcon)
+    }
+
+    private fun switchAmounts() {
+        val amount = amount.get()
+        val convertedAmount = convertedAmount.get()
+        this.amount.set(convertedAmount)
+        this.convertedAmount.set(amount)
+    }
+
+    private fun hideRateHint() {
+        rateFullText.set("")
+    }
+
+    private fun fillAdapters() {
+        val exclude = listOf(from.get().orEmpty(), to.get().orEmpty())
+        viewModel.getCurrencies(exclude)
+    }
+
+    private fun toast(text: String) =
+        Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
+
+    private fun fromCurrencyClick(currency: Currency) = currency.run {
+        fromListDialog?.dismiss()
+        toListDialog?.dismiss()
+        from.set(name)
+        fromIcon.set(icon)
+        isAmountExpanded.set(true)
+        fillAdapters()
+    }
+
+    private fun toCurrencyClick(currency: Currency) = currency.run {
+        fromListDialog?.dismiss()
+        toListDialog?.dismiss()
+        to.set(name)
+        toIcon.set(icon)
+        isAmountExpanded.set(true)
+        fillAdapters()
     }
 
     private fun getDialog(adapter: SelectCurrencyAdapter, linkToView: View): Dialog {
@@ -101,60 +188,10 @@ class MainFragment : Fragment() {
         return dialog
     }
 
-    fun convert() {
-        val currencyFrom = from.get().orEmpty()
-        val currencyTo = to.get().orEmpty()
-        val amount = amount.get().orEmpty()
-        if(amount.isBlank()) {
-            toast(getString(R.string.amount_is_required))
-            return
-        }
-        viewModel.convert(currencyFrom, currencyTo, amount)
-    }
-
-    fun switchCurrencies() {
-        val to = to.get()
-        val toIcon = toIcon.get()
-        val from = from.get()
-        val fromIcon = fromIcon.get()
-        this.from.set(to)
-        this.fromIcon.set(toIcon)
-        this.to.set(from)
-        this.toIcon.set(fromIcon)
-        if(isAmountExpanded.get().not()) {
-            val amount = amount.get()
-            val convertedAmount = convertedAmount.get()
-            this.amount.set(convertedAmount)
-            this.convertedAmount.set(amount)
-        }
-        fillAdapters()
-    }
-
-    private fun fillAdapters() {
-        val exclude = listOf(from.get().orEmpty(), to.get().orEmpty())
-        val items = viewModel.getCurrencies(exclude)
-        fromAdapter.setItems(items)
-        toAdapter.setItems(items)
-    }
-
-    private fun toast(text: String) =
-        Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
-
-    private fun fromCurrencyClick(entry: Pair<String, Int>) = entry.let {
-        fromListDialog?.dismiss()
-        toListDialog?.dismiss()
-        from.set(it.first)
-        fromIcon.set(it.second)
-        isAmountExpanded.set(true)
-        fillAdapters()
-    }
-
-    private fun toCurrencyClick(entry: Pair<String, Int>) = entry.let {
-        fromListDialog?.dismiss()
-        toListDialog?.dismiss()
-        to.set(it.first)
-        toIcon.set(it.second)
-        isAmountExpanded.set(true)
-        fillAdapters()
+    private companion object {
+        const val DEFAULT_CURRENCY_FROM = "EUR"
+        const val DEFAULT_ICON_FROM = R.drawable.ic_currency_eur_small
+        const val DEFAULT_CURRENCY_TO = "GPB"
+        const val DEFAULT_ICON_TO = R.drawable.ic_currency_gbp_small
     }
 }

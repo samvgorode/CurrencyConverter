@@ -1,4 +1,4 @@
-package com.transfergo.currencyconverter.presentation
+package com.transfergo.currencyconverter.presentation.adapters
 
 import android.widget.TextView
 import androidx.core.content.ContextCompat

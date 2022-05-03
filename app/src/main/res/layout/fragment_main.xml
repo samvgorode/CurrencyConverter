@@ -226,6 +226,14 @@
 
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{fragment.rateFullText}"
+                    android:visibility="@{fragment.isAmountExpanded ? View.GONE : View.VISIBLE}"
+                    tools:text="1 EUR = 0.09214 GPB"
+                    android:textColor="@color/black"/>
+
                 <Button
                     android:id="@+id/convertButton"
                     android:layout_width="match_parent"

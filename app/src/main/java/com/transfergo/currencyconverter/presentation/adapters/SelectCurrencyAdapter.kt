@@ -1,17 +1,18 @@
-package com.transfergo.currencyconverter.presentation
+package com.transfergo.currencyconverter.presentation.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.transfergo.currencyconverter.databinding.SelectCurrencyItemBinding
+import com.transfergo.currencyconverter.domain.Currency
 
-class SelectCurrencyAdapter(private val itemClick: (Pair<String, Int>) -> Unit) :
+class SelectCurrencyAdapter(private val itemClick: (Currency) -> Unit) :
     RecyclerView.Adapter<SelectCurrencyViewHolder>() {
 
-    private var items: Map<String, Int>? = null
+    private var items: List<Currency>? = null
 
-    fun setItems(items: Map<String, Int>) {
+    fun setItems(items: List<Currency>) {
         this.items = items
     }
 
@@ -23,9 +24,7 @@ class SelectCurrencyAdapter(private val itemClick: (Pair<String, Int>) -> Unit) 
     }
 
     override fun onBindViewHolder(holder: SelectCurrencyViewHolder, position: Int) {
-        items?.entries
-            ?.map { Pair(it.key, it.value) }
-            ?.getOrNull(position)?.let(holder::bind)
+        items?.getOrNull(position)?.let(holder::bind)
     }
 
     override fun getItemCount(): Int = items?.size ?: 0
@@ -34,14 +33,14 @@ class SelectCurrencyAdapter(private val itemClick: (Pair<String, Int>) -> Unit) 
 
 class SelectCurrencyViewHolder(
     private val binding: SelectCurrencyItemBinding,
-    private val itemClick: (Pair<String, Int>) -> Unit
+    private val itemClick: (Currency) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(pair: Pair<String, Int>) = binding.run {
-        currencyRoot.setOnClickListener { itemClick(pair) }
-        currency.run {
-            text = pair.first
+    fun bind(currency: Currency) = binding.run {
+        currencyRoot.setOnClickListener { itemClick(currency) }
+        currencyName.run {
+            text = currency.name
             setCompoundDrawablesWithIntrinsicBounds(
-                ContextCompat.getDrawable(context, pair.second), null, null, null
+                ContextCompat.getDrawable(context, currency.icon), null, null, null
             )
         }
     }
