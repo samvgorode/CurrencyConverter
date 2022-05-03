@@ -4,7 +4,6 @@ import com.transfergo.currencyconverter.data.api.ApiService
 import com.transfergo.currencyconverter.data.api.response.FxRatesResponse
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 
 class ConvertUseCase @Inject constructor(private val service: ApiService) :
@@ -14,13 +13,8 @@ class ConvertUseCase @Inject constructor(private val service: ApiService) :
         service.getFxRates(
             currencyFrom = model.currencyFrom,
             currencyTo = model.currencyTo,
-            amount = model.amount.toBigDecimalOrNull()?.withTwoSigns() ?: BigDecimal.ZERO
-        ).map {
-            val fixedRate = it.rate?.withTwoSigns()
-            it.copy(rate = fixedRate)
-        }
-
-    private fun BigDecimal.withTwoSigns() = setScale(2, RoundingMode.CEILING)
+            amount = model.amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
+        )
 }
 
 data class ConvertModel(val currencyFrom: String, val currencyTo: String, val amount: String)

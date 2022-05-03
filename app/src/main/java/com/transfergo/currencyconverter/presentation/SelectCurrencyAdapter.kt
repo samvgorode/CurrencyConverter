@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.transfergo.currencyconverter.databinding.SelectCurrencyItemBinding
 
-class SelectCurrencyAdapter(private val itemClick: (Map.Entry<String, Int>) -> Unit):
+class SelectCurrencyAdapter(private val itemClick: (Map.Entry<String, Int>) -> Unit) :
     RecyclerView.Adapter<SelectCurrencyViewHolder>() {
 
     private var items: Map<String, Int>? = null
@@ -16,7 +16,9 @@ class SelectCurrencyAdapter(private val itemClick: (Map.Entry<String, Int>) -> U
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectCurrencyViewHolder {
-        val binding = SelectCurrencyItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = SelectCurrencyItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
         return SelectCurrencyViewHolder(binding, itemClick)
     }
 
@@ -24,17 +26,21 @@ class SelectCurrencyAdapter(private val itemClick: (Map.Entry<String, Int>) -> U
         items?.entries?.toList()?.getOrNull(position)?.let(holder::bind)
     }
 
-    override fun getItemCount(): Int  = items?.size?:0
+    override fun getItemCount(): Int = items?.size ?: 0
 
 }
 
 class SelectCurrencyViewHolder(
     private val binding: SelectCurrencyItemBinding,
     private val itemClick: (Map.Entry<String, Int>) -> Unit
-): RecyclerView.ViewHolder(binding.root) {
-    fun bind(pair: Map.Entry<String, Int>) = binding.currency.run {
-        setOnClickListener { itemClick(pair) }
-        text = pair.key
-        setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(context, pair.value), null, null, null)
+) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(pair: Map.Entry<String, Int>) = binding.run {
+        currencyRoot.setOnClickListener { itemClick(pair) }
+        currency.run {
+            text = pair.key
+            setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(context, pair.value), null, null, null
+            )
+        }
     }
 }

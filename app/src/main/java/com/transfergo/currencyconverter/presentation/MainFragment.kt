@@ -15,6 +15,7 @@ import com.transfergo.currencyconverter.R
 import com.transfergo.currencyconverter.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -41,6 +42,7 @@ class MainFragment : Fragment() {
         from.set(it.key)
         fromIcon.set(it.value)
         isAmountExpanded.set(true)
+        fillAdapters()
     }
 
     private val toAdapter = SelectCurrencyAdapter {
@@ -49,6 +51,7 @@ class MainFragment : Fragment() {
         to.set(it.key)
         toIcon.set(it.value)
         isAmountExpanded.set(true)
+        fillAdapters()
     }
 
     override fun onCreateView(
@@ -61,30 +64,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fromAdapter.setItems(
-            mutableMapOf(
-                "DKK" to R.drawable.ic_currency_dkk_small,
-                "EUR" to R.drawable.ic_currency_eur_small,
-                "GBP" to R.drawable.ic_currency_gbp_small,
-                "HUF" to R.drawable.ic_currency_huf_small,
-                "NOK" to R.drawable.ic_currency_nok_small,
-                "PLN" to R.drawable.ic_currency_pln_small,
-                "RON" to R.drawable.ic_currency_ron_small,
-                "SEK" to R.drawable.ic_currency_sek_small
-            )
-        )
-        toAdapter.setItems(
-            mutableMapOf(
-                "DKK" to R.drawable.ic_currency_dkk_small,
-                "EUR" to R.drawable.ic_currency_eur_small,
-                "GBP" to R.drawable.ic_currency_gbp_small,
-                "HUF" to R.drawable.ic_currency_huf_small,
-                "NOK" to R.drawable.ic_currency_nok_small,
-                "PLN" to R.drawable.ic_currency_pln_small,
-                "RON" to R.drawable.ic_currency_ron_small,
-                "SEK" to R.drawable.ic_currency_sek_small
-            )
-        )
+        fillAdapters()
         viewModel.uiResponse.observe(this.viewLifecycleOwner) { response ->
             when (response) {
                 UiResponse.Progress -> showProgress.set(true)
@@ -99,13 +79,13 @@ class MainFragment : Fragment() {
         isAmountExpanded.set(false)
         val rate = response.rate ?: BigDecimal.ONE
         val amount = amount.get()?.toBigDecimalOrNull() ?: BigDecimal.ZERO
-        val calculatedAmount = (rate * amount).toString()
+        val calculatedAmount = (rate * amount).setScale(2, RoundingMode.CEILING).toString()
         convertedAmount.set(calculatedAmount)
     }
 
     private fun handleError(response: UiResponse.Error) {
         showProgress.set(false)
-        Toast.makeText(requireContext(), response.message, Toast.LENGTH_LONG).show()
+        toast(response.message)
     }
 
     fun onFromClick() = binding?.from?.let {
@@ -119,7 +99,7 @@ class MainFragment : Fragment() {
     }
 
     private fun getDialog(adapter: SelectCurrencyAdapter, linkToView: View): Dialog {
-        val dialog = Dialog(requireContext())
+        val dialog = Dialog(requireContext(), R.style.DialogTheme)
         dialog.setContentView(R.layout.select_currency_list)
         dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         val list = dialog.findViewById<RecyclerView>(R.id.recycler)
@@ -139,6 +119,20 @@ class MainFragment : Fragment() {
         val currencyFrom = from.get().orEmpty()
         val currencyTo = to.get().orEmpty()
         val amount = amount.get().orEmpty()
+        if(amount.isBlank()) {
+            toast(getString(R.string.amount_is_required))
+            return
+        }
         viewModel.convert(currencyFrom, currencyTo, amount)
     }
+
+    private fun fillAdapters() {
+        val exclude = listOf(from.get().orEmpty(), to.get().orEmpty())
+        val items = viewModel.getCurrencies(exclude)
+        fromAdapter.setItems(items)
+        toAdapter.setItems(items)
+    }
+
+    private fun toast(text: String) =
+        Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
 }

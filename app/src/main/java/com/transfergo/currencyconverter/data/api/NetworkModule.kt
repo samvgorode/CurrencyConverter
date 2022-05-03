@@ -14,16 +14,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-private const val BASE_URL = "https://my.transfergo.com/api/"
-private const val NETWORK_TIMEOUT_SECONDS = 10L
-
 @Module
 @InstallIn(SingletonComponent::class)
 internal object NetworkModule {
+
+    private const val BASE_URL = "https://my.transfergo.com/api/"
+    private const val NETWORK_TIMEOUT_SECONDS = 10L
+
     @Singleton
     @Provides
     fun provideLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        level =
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
 
     @Singleton
