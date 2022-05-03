@@ -13,9 +13,9 @@
 
     </data>
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -81,7 +81,11 @@
                         android:layout_marginHorizontal="24dp"
                         android:layout_marginTop="8dp"
                         android:importantForAccessibility="no"
-                        android:src="@drawable/ic_arrows_24" />
+                        android:src="@drawable/ic_arrows_24"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?selectableItemBackground"
+                        android:onClick="@{_ -> fragment.switchCurrencies()}"/>
 
                     <LinearLayout
                         android:id="@+id/to"
@@ -248,191 +252,5 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-    </FrameLayout>
-
-
-    <!--<androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:padding="16dp"
-        tools:context=".presentation.MainFragment">
-
-        <TextView
-            android:id="@+id/fromEditTextLabelTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/from"
-            android:textSize="13sp"
-            app:layout_constraintStart_toStartOf="@+id/fromInputLayout"
-            app:layout_constraintTop_toTopOf="@+id/fromInputLayout" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fromInputLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            app:endIconDrawable="@drawable/ic_arrow_down_24"
-            app:endIconMode="custom"
-            app:layout_constraintEnd_toStartOf="@+id/arrowsImageView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <AutoCompleteTextView
-                android:id="@+id/fromTextView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:drawableStart="@drawable/ic_currency_eur_small"
-                android:drawablePadding="8dp"
-                android:editable="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:text="EUR" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <ImageView
-            android:id="@+id/arrowsImageView"
-            android:layout_width="32dp"
-            android:layout_height="0dp"
-            android:src="@drawable/ic_arrows_24"
-            app:layout_constraintBottom_toBottomOf="@id/fromInputLayout"
-            app:layout_constraintEnd_toStartOf="@id/toEditText"
-            app:layout_constraintStart_toEndOf="@id/fromInputLayout"
-            app:layout_constraintTop_toTopOf="@id/fromInputLayout" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/toEditText"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:endIconDrawable="@drawable/ic_arrow_down_24"
-            app:endIconMode="custom"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/arrowsImageView"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <AutoCompleteTextView
-                android:id="@+id/toTextView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:drawableStart="@drawable/ic_currency_gbp_small"
-                android:drawablePadding="8dp"
-                android:editable="false"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:text="GBP" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/toInputLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/to"
-            android:textSize="13sp"
-            app:layout_constraintStart_toStartOf="@+id/toEditText"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/amountEditTextLabelTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="AMOUNT:"
-            android:textSize="10sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fromInputLayout" />
-
-        <TextView
-            android:id="@+id/amountCurrencyTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="EUR"
-            app:layout_constraintBottom_toBottomOf="@+id/amountEditText"
-            app:layout_constraintEnd_toEndOf="@+id/amountEditText"
-            app:layout_constraintTop_toTopOf="@+id/amountEditText" />
-
-        <EditText
-            android:id="@+id/amountEditText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:lines="1"
-            android:paddingEnd="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/convertedToEditText"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/amountEditTextLabelTextView"
-            app:layout_goneMarginEnd="0dp"
-            tools:text="3.23984892479384723894723894789244" />
-
-        <TextView
-            android:id="@+id/convertedToEditTextLabelTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="CONVERTED TO:"
-            android:textSize="10sp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@+id/convertedToEditText"
-            app:layout_constraintTop_toBottomOf="@+id/fromInputLayout"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/convertedToCurrencyTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="EUR"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/amountEditText"
-            app:layout_constraintEnd_toEndOf="@+id/convertedToEditText"
-            app:layout_constraintTop_toTopOf="@+id/amountEditText"
-            tools:visibility="visible" />
-
-        <EditText
-            android:id="@+id/convertedToEditText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:lines="1"
-            android:paddingEnd="32dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/amountEditText"
-            app:layout_constraintTop_toBottomOf="@+id/amountEditTextLabelTextView"
-            tools:text="3.23984892479384723894723894789244"
-            tools:visibility="visible" />
-
-        <Button
-            android:id="@+id/convertButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:backgroundTint="#59CF5E"
-            android:onClick="@{() -> fragment.convert()}"
-            android:text="@string/convert"
-            android:textAllCaps="false"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/amountEditText" />
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="@{fragment.showProgress ? View.VISIBLE : View.GONE}">
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-        </FrameLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>-->
+    </ScrollView>
 </layout>

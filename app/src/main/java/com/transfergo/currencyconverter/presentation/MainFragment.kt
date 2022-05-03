@@ -21,7 +21,6 @@ import java.math.RoundingMode
 class MainFragment : Fragment() {
 
     private val viewModel: MainFragmentViewModel by viewModels()
-
     private var binding: FragmentMainBinding? = null
 
     val showProgress = ObservableBoolean()
@@ -31,28 +30,15 @@ class MainFragment : Fragment() {
     val toIcon = ObservableInt(R.drawable.ic_currency_gbp_small)
     val amount = ObservableField<String>()
     val convertedAmount = ObservableField<String>()
-
-    private var fromListDialog: Dialog? = null
-    private var toListDialog: Dialog? = null
     val isAmountExpanded = ObservableBoolean(true)
 
-    private val fromAdapter = SelectCurrencyAdapter {
-        fromListDialog?.dismiss()
-        toListDialog?.dismiss()
-        from.set(it.key)
-        fromIcon.set(it.value)
-        isAmountExpanded.set(true)
-        fillAdapters()
-    }
+    // select currency dialogs
+    private var fromListDialog: Dialog? = null
+    private var toListDialog: Dialog? = null
 
-    private val toAdapter = SelectCurrencyAdapter {
-        fromListDialog?.dismiss()
-        toListDialog?.dismiss()
-        to.set(it.key)
-        toIcon.set(it.value)
-        isAmountExpanded.set(true)
-        fillAdapters()
-    }
+    // select currency adapters
+    private val fromAdapter = SelectCurrencyAdapter(::fromCurrencyClick)
+    private val toAdapter = SelectCurrencyAdapter(::toCurrencyClick)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -126,6 +112,24 @@ class MainFragment : Fragment() {
         viewModel.convert(currencyFrom, currencyTo, amount)
     }
 
+    fun switchCurrencies() {
+        val to = to.get()
+        val toIcon = toIcon.get()
+        val from = from.get()
+        val fromIcon = fromIcon.get()
+        this.from.set(to)
+        this.fromIcon.set(toIcon)
+        this.to.set(from)
+        this.toIcon.set(fromIcon)
+        if(isAmountExpanded.get().not()) {
+            val amount = amount.get()
+            val convertedAmount = convertedAmount.get()
+            this.amount.set(convertedAmount)
+            this.convertedAmount.set(amount)
+        }
+        fillAdapters()
+    }
+
     private fun fillAdapters() {
         val exclude = listOf(from.get().orEmpty(), to.get().orEmpty())
         val items = viewModel.getCurrencies(exclude)
@@ -135,4 +139,22 @@ class MainFragment : Fragment() {
 
     private fun toast(text: String) =
         Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
+
+    private fun fromCurrencyClick(entry: Pair<String, Int>) = entry.let {
+        fromListDialog?.dismiss()
+        toListDialog?.dismiss()
+        from.set(it.first)
+        fromIcon.set(it.second)
+        isAmountExpanded.set(true)
+        fillAdapters()
+    }
+
+    private fun toCurrencyClick(entry: Pair<String, Int>) = entry.let {
+        fromListDialog?.dismiss()
+        toListDialog?.dismiss()
+        to.set(it.first)
+        toIcon.set(it.second)
+        isAmountExpanded.set(true)
+        fillAdapters()
+    }
 }
