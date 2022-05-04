@@ -24,7 +24,7 @@ class ApiServiceTest {
     }
 
     @Test
-    fun `getFxRates method should return Single FxRatesResponse with correct rate`() {
+    fun `getFxRates method should return Single FxRatesResponse`() {
         val response = mockk<FxRatesResponse>()
         val single = Single.just(response)
         val apiService = getApiService(single)

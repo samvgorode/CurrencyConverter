@@ -1,6 +1,7 @@
 package com.transfergo.currencyconverter.data.local
 
 import com.transfergo.currencyconverter.R
+import io.reactivex.rxjava3.core.Single
 
 /**
  *  LocalDataSource - stores data about available currencies.
@@ -9,10 +10,14 @@ import com.transfergo.currencyconverter.R
  */
 class LocalDataSource {
 
-    fun getCurrenciesExcluding(currencies: List<String>): Map<String, Int> =
-        getAvailableCurrencies().apply { currencies.forEach { remove(it) } }
+    fun getCurrenciesExcluding(currencies: List<String>): Single<Map<String, Int>> =
+        Single.fromCallable {
+            getAvailableCurrencies().apply { currencies.forEach { remove(it) } }
+        }
 
-    fun getAllCurrencies(): Map<String, Int> = getAvailableCurrencies()
+    fun getAllCurrencies(): Single<Map<String, Int>> = Single.fromCallable {
+        getAvailableCurrencies()
+    }
 
     private fun getAvailableCurrencies() = mutableMapOf(
         "DKK" to R.drawable.ic_currency_dkk_small,
