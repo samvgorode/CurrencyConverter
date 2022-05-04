@@ -1,5 +1,7 @@
 package com.transfergo.currencyconverter.data.local
 
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.EUR
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.GBP
 import org.junit.Test
 
 class LocalDataSourceTest {
@@ -16,10 +18,9 @@ class LocalDataSourceTest {
     @Test
     fun `getCurrenciesExcluding should exclude currency`() {
         val dataSource = LocalDataSource()
-        val exclude = "EUR"
-        dataSource.getCurrenciesExcluding(listOf(exclude))
+        dataSource.getCurrenciesExcluding(listOf(EUR, GBP))
             .test()
-            .assertValue { it.containsKey(exclude).not() }
+            .assertValue { it.containsKey(EUR).not() && it.containsKey(GBP).not() }
             .dispose()
     }
 }

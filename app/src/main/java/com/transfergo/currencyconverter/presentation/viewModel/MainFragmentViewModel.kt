@@ -3,9 +3,10 @@ package com.transfergo.currencyconverter.presentation.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.transfergo.currencyconverter.data.api.response.FxRatesResponse
-import com.transfergo.currencyconverter.domain.*
-import com.transfergo.currencyconverter.presentation.LastKnownState
+import com.transfergo.currencyconverter.domain.ConvertModel
+import com.transfergo.currencyconverter.domain.ConvertUseCase
+import com.transfergo.currencyconverter.domain.Currency
+import com.transfergo.currencyconverter.domain.GetExcludingCurrenciesUseCase
 import com.transfergo.currencyconverter.presentation.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -36,9 +37,6 @@ class MainFragmentViewModel @Inject constructor(
 
     fun getCurrencies(excludeCurrencies: List<String>) {
         getExcludingCurrenciesUseCase(excludeCurrencies)
-            .doOnSubscribe {
-                _uiState.postValue(UiState.Progress)
-            }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(_currencies::postValue) {
                 _uiState.postValue(UiState.Error(it.message.orEmpty()))

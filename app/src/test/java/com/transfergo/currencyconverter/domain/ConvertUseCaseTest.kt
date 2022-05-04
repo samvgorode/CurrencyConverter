@@ -3,7 +3,6 @@ package com.transfergo.currencyconverter.domain
 import com.transfergo.currencyconverter.data.api.ApiService
 import com.transfergo.currencyconverter.data.api.response.FxRatesResponse
 import com.transfergo.currencyconverter.data.local.LocalDataSource
-import com.transfergo.currencyconverter.presentation.LastKnownState
 import com.transfergo.currencyconverter.presentation.UiState
 import io.mockk.every
 import io.mockk.mockk
@@ -11,7 +10,6 @@ import io.mockk.verify
 import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 class ConvertUseCaseTest {
 
@@ -74,13 +72,19 @@ class ConvertUseCaseTest {
             } returns output
         }
 
-    private fun getLocalDataSource(map : Map<String, Int>): LocalDataSource = mockk {
+    private fun getLocalDataSource(map: Map<String, Int>): LocalDataSource = mockk {
         every { getAllCurrencies() } returns Single.just(map)
     }
 
-    private fun getZipperUseCase(from: String? = "", fromIcon: Int? = 1, to: String? = "", toIcon: Int? = 1) : ConvertZipperUseCase {
+    private fun getZipperUseCase(
+        from: String? = "",
+        fromIcon: Int? = 1,
+        to: String? = "",
+        toIcon: Int? = 1
+    ): ConvertZipperUseCase {
         val state = LastKnownState(
-            from, fromIcon, to, toIcon, BigDecimal.ONE, null, null)
+            from, fromIcon, to, toIcon, BigDecimal.ONE, null, null
+        )
 
         return mockk {
             every { apply(any(), any()) } returns UiState.Success(state)

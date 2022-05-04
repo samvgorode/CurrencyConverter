@@ -3,7 +3,6 @@ package com.transfergo.currencyconverter.domain
 import com.transfergo.currencyconverter.data.api.ApiService
 import com.transfergo.currencyconverter.data.api.response.FxRatesResponse
 import com.transfergo.currencyconverter.data.local.LocalDataSource
-import com.transfergo.currencyconverter.presentation.LastKnownState
 import com.transfergo.currencyconverter.presentation.UiState
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.functions.BiFunction
@@ -40,3 +39,13 @@ class ConvertZipperUseCase @Inject constructor() :
 }
 
 data class ConvertModel(val currencyFrom: String, val currencyTo: String, val amount: String)
+
+data class LastKnownState(
+    val from: String?,
+    val fromIcon: Int?,
+    val to: String?,
+    val toIcon: Int?,
+    val rate: BigDecimal?,
+    val fromAmount: Float?,
+    val toAmount: Float?
+)

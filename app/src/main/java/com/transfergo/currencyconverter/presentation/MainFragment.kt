@@ -11,6 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.transfergo.currencyconverter.R
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.EUR
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.EUR_ICON
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.GBP
+import com.transfergo.currencyconverter.data.local.LocalDataSource.Companion.GBP_ICON
 import com.transfergo.currencyconverter.databinding.FragmentMainBinding
 import com.transfergo.currencyconverter.domain.Currency
 import com.transfergo.currencyconverter.presentation.adapters.SelectCurrencyAdapter
@@ -26,10 +30,10 @@ class MainFragment : Fragment() {
 
     // observables
     val showProgress = ObservableBoolean()
-    val from = ObservableField(DEFAULT_CURRENCY_FROM)
-    val fromIcon = ObservableInt(DEFAULT_ICON_FROM)
-    val to = ObservableField(DEFAULT_CURRENCY_TO)
-    val toIcon = ObservableInt(DEFAULT_ICON_TO)
+    val from = ObservableField(EUR)
+    val fromIcon = ObservableInt(EUR_ICON)
+    val to = ObservableField(GBP)
+    val toIcon = ObservableInt(GBP_ICON)
     val amount = ObservableField<String>()
     val convertedAmount = ObservableField<String>()
     val rateFullText = ObservableField<String>()
@@ -186,12 +190,5 @@ class MainFragment : Fragment() {
         layoutParams?.x = x
         layoutParams?.y = y
         return dialog
-    }
-
-    private companion object {
-        const val DEFAULT_CURRENCY_FROM = "EUR"
-        const val DEFAULT_ICON_FROM = R.drawable.ic_currency_eur_small
-        const val DEFAULT_CURRENCY_TO = "GPB"
-        const val DEFAULT_ICON_TO = R.drawable.ic_currency_gbp_small
     }
 }
